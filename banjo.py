@@ -1,8 +1,9 @@
 import numpy as np
 import scipy
 from scipy.io import wavfile
+from pitches import Converter
 
-file_path = "cmaj.wav"
+file_path = "guitar.wav"
 SAMPLE_FREQ = 26 #samples per sec
 
 samples = 100
@@ -24,14 +25,20 @@ def stupid_get_closest_divisor(length, base_div):
             return base_div
         base_div += 1
 
-yf = get_freq(y1, samples)
-print(yf)
-
 (rate, sig) = wavfile.read(file_path)
 duration = len(sig) / rate # samples per sec
-print(duration)
-
-split_num = stupid_get_closest_divisor( len(sig), duration * SAMPLE_FREQ )
+split_num = round(len(sig) / 1000)
 print(split_num)
-sig = np.split(sig, split_num)
+sig = sig[:len(sig)-len(sig)%1000]
+print(len(sig))
+sig = np.split(sig, split_num) # SPLIT AUDIO FILE INTO SMALL CHUNKS
+
+c = Converter()
+print("got here")
+for chunk in sig:
+    data = chunk[:,0]
+    freq = get_freq(data, rate)
+    print(c.pitch(freq[0]))
+
+
 
